@@ -1,0 +1,24 @@
+
+"name": "chatbot-ui",
+"version": "1.0.0",
+"description": "A simple chatbot UI using OpenAI API",
+"main": "index.js",
+"scripts": {
+  "start": "next dev",
+  "build": "next build",
+  "serve": "next start"
+},
+"dependencies": {
+  "next": "latest",
+  "react": "latest",
+  "react-dom": "latest",
+  "@/components/ui": "latest",
+  "lucide-react": "latest"
+},
+"devDependencies": {
+  "tailwindcss": "latest",
+  "postcss": "latest",
+  "autoprefixer": "latest"
+}
+}
+package.json
