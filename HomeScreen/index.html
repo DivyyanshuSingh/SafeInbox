@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SafeInbox</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <style>
+      body {
+        background-color: #1a1d20;
+        color: #e9ecef;
+      }
+      #profilePic{
+        width : 5rem;
+      }
+      #profilePicBut{
+        width : 2.5rem;
+      }
+      .sidebar {
+        background-color: #212529 !important;
+        height: 100vh;
+        transition: all 0.3s ease;
+        position: fixed;
+        top: 0;
+        z-index: 100;
+        width: 16.666667%;
+      }
+      .sidebar.collapsed {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .left-sidebar {
+        left: 0;
+      }
+      .right-sidebar {
+        right: 0;
+      }
+      .main-content .card {
+        margin-bottom: 1.5rem;
+      }
+      .main-content {
+        transition: all 0.3s ease;
+        margin-left: 16.666667%;
+        margin-right: 16.666667%;
+        width: calc(100% - 33.333334%);
+      }
+      .main-content.expanded-left {
+        margin-left: 0;
+        width: calc(100% - 16.666667%);
+      }
+      .main-content.expanded-right {
+        margin-right: 0;
+        width: calc(100% - 16.666667%);
+      }
+      .main-content.expanded-both {
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+      }
+      .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+      }
+      .toggle-btn {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        display: flex;
+        align-items: center;
+      }
+      .toggle-btn:hover {
+        transform: scale(1.1);
+      }
+      .toggle-btn img {
+        border-radius: 50%;
+        border: 2px solid #373b3e;
+      }
+      .card {
+        background-color: #2c3034;
+        border-color: #373b3e;
+      }
+      .card-header {
+        background-color: #343a40;
+        border-bottom-color: #373b3e;
+      }
+      .form-control {
+        background-color: #343a40;
+        border-color: #495057;
+        color: #e9ecef;
+      }
+      .form-control:focus {
+        background-color: #3d444a;
+        border-color: #6c757d;
+        color: #e9ecef;
+      }
+      .form-control::placeholder {
+        color: #6c757d;
+      }
+      .text-muted {
+        color: #adb5bd !important;
+      }
+      .threat-feed {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+      .threat-item {
+        border-left: 4px solid;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+      }
+      .threat-high {
+        border-left-color: #dc3545;
+      }
+      .threat-medium {
+        border-left-color: #ffc107;
+      }
+      .threat-low {
+        border-left-color: #0dcaf0;
+      }
+      .hamburger-menu {
+        font-size: 24px;
+        color: #e9ecef;
+      }
+      .security-tips-grid {
+        transition: all 0.3s ease;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Left Sidebar - Threat Feed -->
+        <div class="col-md-2 sidebar left-sidebar" id="leftSidebar">
+          <div class="pt-5">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">📡 Real-Time Threat Feed</h5>
+              </div>
+              <div class="card-body threat-feed">
+                <div class="threat-item threat-high">
+                  <h6>Critical Phishing Campaign</h6>
+                  <p class="small mb-1">Large-scale phishing campaign targeting major banks detected.</p>
+                  <small class="text-muted">2 minutes ago</small>
+                </div>
+                <div class="threat-item threat-medium">
+                  <h6>Data Breach Alert</h6>
+                  <p class="small mb-1">Security breach reported at TechCorp affecting user credentials.</p>
+                  <small class="text-muted">15 minutes ago</small>
+                </div>
+                <div class="threat-item threat-low">
+                  <h6>CISA Advisory</h6>
+                  <p class="small mb-1">New vulnerability discovered in popular email clients.</p>
+                  <small class="text-muted">1 hour ago</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+      <main class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <button class="toggle-btn" id="leftSidebarToggle">☰</button>
+          <h1>Security Dashboard</h1>
+          <button class="toggle-btn" id="rightSidebarToggle">
+            <img src="/profilePic.webp" alt="Profile" class="rounded-circle" id="profilePicBut">
+          </button>
+        </div>
+
+        
+        <!-- Email Check -->
+        <div class="card">
+            <div class="card-header">
+              <h2>Email Check</h2>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="mb-3">
+                  <label for="emailContent" class="form-label">Paste your suspicious email here:</label>
+                  <textarea class="form-control" id="emailContent" rows="6" 
+                    placeholder="Paste the entire email content here for analysis..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Check for Phishing</button>
+              </form>
+            </div>
+          </div>
+          
+        <!-- Email Scanner History -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>Past Email Scans</h2>
+            <button class="btn btn-outline-primary btn-sm">View All</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Feb 15, 2025 14:30</td>
+                    <td>Account Security Update</td>
+                    <td><span class="status-badge status-threat">Threat</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#scanDetailsModal">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Feb 14, 2025 11:20</td>
+                    <td>Team Meeting Notes</td>
+                    <td><span class="status-badge status-safe">Safe</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#scanDetailsModal">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Feb 14, 2025 09:15</td>
+                    <td>Invoice #12345</td>
+                    <td><span class="status-badge status-warning">Warning</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#scanDetailsModal">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        
+
+        <!-- Security Tips -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Security Tips</h2>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5>Check the Sender</h5>
+                    <p>Always verify the sender's email address carefully. Scammers often use similar-looking addresses.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5>Be Wary of Urgency</h5>
+                    <p>Phishing emails often create false urgency. Take time to verify suspicious requests.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5>Don't Click Unknown Links</h5>
+                    <p>Hover over links to preview URLs. When unsure, verify through official channels.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Security Score Trends -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Security Score Trends</h2>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="securityTrendsChart"></canvas>
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-4">
+              <div class="card bg-dark">
+                <div class="card-body">
+                  <h6>Login Security</h6>
+                  <p class="mb-2">All logins from verified locations</p>
+                  <span class="badge bg-success">Safe</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-dark">
+                <div class="card-body">
+                  <h6>Phishing Detection</h6>
+                  <p class="mb-2">3 threats blocked this week</p>
+                  <span class="badge bg-warning">Active</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-dark">
+                <div class="card-body">
+                  <h6>Security Actions</h6>
+                  <p class="mb-2">MFA enabled on all devices</p>
+                  <span class="badge bg-info">Updated</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+        <!-- Right Sidebar - Profile -->
+        <div class="col-md-2 sidebar right-sidebar" id="rightSidebar">
+          <div class="pt-5">
+            <div class="card">
+              <div class="card-body">
+                <div class="text-center mb-3">
+                  <img src="/profilePic.webp" class="rounded-circle" alt="Profile Picture" id="profilePic"/>
+                </div>
+                <h5 class="card-title text-center">John Doe</h5>
+                <p class="card-text text-center">john.doe@example.com</p>
+
+                <div class="mt-4">
+                  <h6>Email Security Score</h6>
+                  <div class="progress" style="background-color: #343a40">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                  </div>
+                  <div class="mt-2 text-muted small">Your inbox is relatively safe</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security Warnings Card -->
+            <div class="card mt-4">
+              <div class="card-header bg-danger text-white">
+                <h6 class="mb-0">⚠ Security Warnings</h6>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled small">
+                  <li><strong>Weak Passwords:</strong> Use strong, unique passwords for each account.</li>
+                  <li><strong>Clicking Suspicious Links:</strong> Hover over links before clicking.</li>
+                  <li><strong>Not Verifying Senders:</strong> Always double-check email addresses.</li>
+                  <li><strong>Ignoring MFA:</strong> Enable Multi-Factor Authentication (MFA) for added security.</li>
+                </ul>
+                <p class="text-muted small">Improve these to increase your security score!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updateMainContentClass() {
+        const leftSidebar = document.getElementById("leftSidebar");
+        const rightSidebar = document.getElementById("rightSidebar");
+        const mainContent = document.getElementById("mainContent");
+        
+        const isLeftCollapsed = leftSidebar.classList.contains("collapsed");
+        const isRightCollapsed = rightSidebar.classList.contains("collapsed");
+        
+        mainContent.classList.remove("expanded-left", "expanded-right", "expanded-both");
+        
+        if (isLeftCollapsed && isRightCollapsed) {
+          mainContent.classList.add("expanded-both");
+        } else if (isLeftCollapsed) {
+          mainContent.classList.add("expanded-left");
+        } else if (isRightCollapsed) {
+          mainContent.classList.add("expanded-right");
+        }
+      }
+
+      document.getElementById("leftSidebarToggle").addEventListener("click", function() {
+        const sidebar = document.getElementById("leftSidebar");
+        sidebar.classList.toggle("collapsed");
+        updateMainContentClass();
+      });
+
+      document.getElementById("rightSidebarToggle").addEventListener("click", function() {
+        const sidebar = document.getElementById("rightSidebar");
+        sidebar.classList.toggle("collapsed");
+        updateMainContentClass();
+      });
+
+      // Initialize sidebar states
+      window.addEventListener("load", function() {
+        const leftSidebar = document.getElementById("leftSidebar");
+        const rightSidebar = document.getElementById("rightSidebar");
+
+        if (window.innerWidth < 768) {
+          leftSidebar.classList.add("collapsed");
+          rightSidebar.classList.add("collapsed");
+          updateMainContentClass();
+        }
+      });
+
+      // Handle window resize
+      window.addEventListener("resize", function() {
+        const leftSidebar = document.getElementById("leftSidebar");
+        const rightSidebar = document.getElementById("rightSidebar");
+
+        if (window.innerWidth < 768) {
+          leftSidebar.classList.add("collapsed");
+          rightSidebar.classList.add("collapsed");
+        } else {
+          leftSidebar.classList.remove("collapsed");
+          rightSidebar.classList.remove("collapsed");
+        }
+        updateMainContentClass();
+      });
+    </script>
+  </body>
+</html>
